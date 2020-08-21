@@ -14,6 +14,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[wasm_bindgen]
 extern "C" {}
 
+extern crate js_sys;
+
 #[wasm_bindgen]
 // * represent each enum value as an 8bit integer / ! what is the default? probably 32bit
 // * this is crucial for the implementation as it ensures that each cell is represented by 1 byte
@@ -73,6 +75,22 @@ impl Universe {
     self.cells.as_ptr()
   }
 
+  /// Set the width of the universe.
+  ///
+  /// Resets all cells to the dead state.
+  pub fn set_width(&mut self, width: u32) {
+    self.width = width;
+    self.cells = (0..width * self.height).map(|_i| Cell::Dead).collect();
+  }
+
+  /// Set the height of the universe.
+  ///
+  /// Resets all cells to the dead state.
+  pub fn set_height(&mut self, height: u32) {
+    self.height = height;
+    self.cells = (0..self.width * height).map(|_i| Cell::Dead).collect();
+  }
+
   pub fn tick(&mut self) {
     let mut next = self.cells.clone();
 
@@ -81,6 +99,14 @@ impl Universe {
         let idx = self.get_index(row, col);
         let cell = self.cells[idx];
         let live_neighbors = self.live_neighbor_count(row, col);
+
+        // log!(
+        //   "cell[{}, {}] is initially {:?} and has {} live neighbors",
+        //   row,
+        //   col,
+        //   cell,
+        //   live_neighbors
+        // );
 
         let next_cell = match (cell, live_neighbors) {
           // Rule 1: Any live cell with fewer than two live neighbours
@@ -98,7 +124,7 @@ impl Universe {
           // All other cells remain in the same state.
           (otherwise, _) => otherwise,
         };
-
+        // log!("    it becomes {:?}", next_cell);
         next[idx] = next_cell;
       }
     }
@@ -107,18 +133,20 @@ impl Universe {
   }
 
   pub fn new() -> Universe {
+    utils::set_panic_hook();
     let width = 64;
     let height = 64;
 
     let cells = (0..width * height)
-      .map(|i| {
-        if i % 2 == 0 || i % 7 == 0 {
+      .map(|_i| {
+        if js_sys::Math::random() > 0.5 {
           Cell::Alive
         } else {
           Cell::Dead
         }
       })
       .collect();
+
     // * new instance of struct you can use shorthand for assigning variables to properties
     Universe {
       width,
@@ -132,8 +160,29 @@ impl Universe {
   }
 }
 
-// implementing the `Display`-trait for a a struct provides a `to_string` method and allows it usage
-// in the `format!` and `println!`-mactos
+// * second implementation-block for `Universe` without the wasm-bindings
+// * this is only for testing, these functions will not be exported to javascript
+// ! but will take up space when compiled?
+// ! why can I not annotate these to only be included in the test environment
+// #[cfg(test)]
+impl Universe {
+  /// Get the dead and alive values of the entire universe.
+  pub fn get_cells(&self) -> &[Cell] {
+    &self.cells
+  }
+
+  /// Set cells to be alive in a universe by passing the row and column
+  /// of each cell as an array.
+  pub fn set_cells(&mut self, cells: &[(u32, u32)]) {
+    for (row, col) in cells.iter().cloned() {
+      let idx = self.get_index(row, col);
+      self.cells[idx] = Cell::Alive;
+    }
+  }
+}
+
+// * implementing the `Display`-trait for a a struct provides a `to_string` method and allows it usage
+// * in the `format!` and `println!`-mactos
 impl fmt::Display for Universe {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     for line in self.cells.as_slice().chunks(self.width as usize) {
