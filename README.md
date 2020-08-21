@@ -1,69 +1,24 @@
-<div align="center">
+# Conways Game of Life with Rust and WASM
 
-  <h1><code>wasm-pack-template</code></h1>
+This is the implementation of this tutorial: https://rustwasm.github.io/docs/book/game-of-life
 
-  <strong>A template for kick starting a Rust and WebAssembly project using <a href="https://github.com/rustwasm/wasm-pack">wasm-pack</a>.</strong>
+## Running
 
-  <p>
-    <a href="https://travis-ci.org/rustwasm/wasm-pack-template"><img src="https://img.shields.io/travis/rustwasm/wasm-pack-template.svg?style=flat-square" alt="Build Status" /></a>
-  </p>
+Requirements are working rust-toolchain
 
-  <h3>
-    <a href="https://rustwasm.github.io/docs/wasm-pack/tutorials/npm-browser-packages/index.html">Tutorial</a>
-    <span> | </span>
-    <a href="https://discordapp.com/channels/442252698964721669/443151097398296587">Chat</a>
-  </h3>
+`$ cargo install` (?)
+`$ wasm-pack build`
+`$ cd www && npm install && npm start`
 
-  <sub>Built with 🦀🕸 by <a href="https://rustwasm.github.io/">The Rust and WebAssembly Working Group</a></sub>
-</div>
+## Notes
 
-## About
-
-[**📚 Read this template tutorial! 📚**][template-docs]
-
-This template is designed for compiling Rust libraries into WebAssembly and
-publishing the resulting package to NPM.
-
-Be sure to check out [other `wasm-pack` tutorials online][tutorials] for other
-templates and usages of `wasm-pack`.
-
-[tutorials]: https://rustwasm.github.io/docs/wasm-pack/tutorials/index.html
-[template-docs]: https://rustwasm.github.io/docs/wasm-pack/tutorials/npm-browser-packages/index.html
-
-## 🚴 Usage
-
-### 🐑 Use `cargo generate` to Clone this Template
-
-[Learn more about `cargo generate` here.](https://github.com/ashleygwilliams/cargo-generate)
-
-```
-cargo generate --git https://github.com/rustwasm/wasm-pack-template.git --name my-project
-cd my-project
-```
-
-### 🛠️ Build with `wasm-pack build`
-
-```
-wasm-pack build
-```
-
-### 🔬 Test in Headless Browsers with `wasm-pack test`
-
-```
-wasm-pack test --headless --firefox
-```
-
-### 🎁 Publish to NPM with `wasm-pack publish`
-
-```
-wasm-pack publish
-```
-
-## 🔋 Batteries Included
-
-* [`wasm-bindgen`](https://github.com/rustwasm/wasm-bindgen) for communicating
-  between WebAssembly and JavaScript.
-* [`console_error_panic_hook`](https://github.com/rustwasm/console_error_panic_hook)
-  for logging panic messages to the developer console.
-* [`wee_alloc`](https://github.com/rustwasm/wee_alloc), an allocator optimized
-  for small code size.
+- You define the exports of the rust modules by marking the rust language constructs with the `#[wasm_bindgen]`-macro
+  - you need to annotate declaration and implementation for structs
+  - in a struct only public members are exposed as JS exports
+  - everyhing you declared as a binding in such a fashion shows up in the `*_bg.js` file in the generated `pkg`-directory and through this allows interop with wasm
+- WASMs memory is linear and can be accessed directly by importing it from the `*_bg.js`-file
+  - you can directly access this memory by layering a `UInt*Array` on top of it
+  - this saves the overhead of copying data to and from WASMs linear memory to the JS heap
+  - this memory is not directly mutable (thank god)
+- you can pull in a local directory of files as a node-module by using this syntax in `package.json`: `"wasm-game-of-life": "file:../pkg"`
+- Webpack seems to be able to directly import wasm-files without further plugins (?)
