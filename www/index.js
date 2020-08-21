@@ -1,6 +1,7 @@
 import { Universe, Cell } from "wasm-game-of-life";
 // * this DIRECTLY accesses Web Assembly's memory
 import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
+import { fps } from "./frame-counter";
 
 const CELL_SIZE = 5; // px
 const GRID_COLOR = "#CCCCCC";
@@ -123,6 +124,7 @@ ticksPerFrame.addEventListener("change", (event) => {
 
 let animationId = null;
 const renderLoop = () => {
+  fps.render();
   for (let i = 0; i < ticksPerFrameValue; i++) {
     universe.tick();
   }

@@ -75,3 +75,7 @@ You can also use the following flags:
             }
         }
     ```
+
+### Profiling
+
+- You can access the tools you are used to from JS like `console.time`/`console.timeEnd` via the `web-sys`-crate
