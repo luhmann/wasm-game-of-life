@@ -6,9 +6,11 @@ This is the implementation of this tutorial: https://rustwasm.github.io/docs/boo
 
 Requirements are working rust-toolchain
 
-`$ cargo install` (?)
-`$ wasm-pack build`
-`$ cd www && npm install && npm start`
+```sh
+$ cargo install (?)
+$ wasm-pack build
+$ cd www && npm install && npm start
+```
 
 ## Tests
 
