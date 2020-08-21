@@ -1,6 +1,6 @@
 # Conways Game of Life with Rust and WASM
 
-This is the implementation of this tutorial: https://rustwasm.github.io/docs/book/game-of-life
+This is the implementation of this tutorial: https://rustwasm.github.io/docs/book/introduction.html
 
 ## Running
 
