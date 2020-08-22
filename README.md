@@ -79,3 +79,11 @@ You can also use the following flags:
 ### Profiling
 
 - You can access the tools you are used to from JS like `console.time`/`console.timeEnd` via the `web-sys`-crate
+- You can use `Timer` in `utils` to profile the execution time of blocks in rust code
+- There are built-in tools in rust to write benchmarks for rust code with `#[bench]`
+
+### Deploying
+
+>
+
+For the fastest page loads, you'll want to use the WebAssembly.instantiateStreaming (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiateStreaming) function to pipeline wasm compilation and instantiation with network transfer (or make sure your bundler is able to use that function). However, instantiateStreaming requires that the HTTP response has the application/wasm MIME type set, or else it will throw an error.
